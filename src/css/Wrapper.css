@@ -1,0 +1,17 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  padding: 50px;
+  position: relative;
+}
+
+.creation-zone {
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  width: 200px;
+  height: 50px;
+  margin-bottom: 50px;
+}
