@@ -8,16 +8,17 @@ function Wrapper(props) {
 
   useEffect(() => {
     svg = document.querySelector('#svg');
-  }, [])
+  }, []);
+
+  const svgPoint = (elem, x, y) => {
+    let p = svg.createSVGPoint();
+    p.x = x;
+    p.y = y;
+    return p.matrixTransform(elem.getScreenCTM().inverse());
+  }
 
   const _drawZone = () => {
-    const svgPoint = (elem, x, y) => {
-      let p = svg.createSVGPoint();
-      p.x = x;
-      p.y = y;
-      return p.matrixTransform(elem.getScreenCTM().inverse());
-    }
-
+  
     svg.addEventListener('mousedown', (event) => {
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       const rect2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -42,7 +43,7 @@ function Wrapper(props) {
         rect.setAttributeNS(null, 'class', 'zone')
         svg.appendChild(rect);
 
-        const rects_group = document.querySelectorAll('rect')
+        const rects_group = document.querySelectorAll('.zone')
         let id = rects_group.length
         rect.setAttributeNS(null, 'id', id)
         
@@ -68,12 +69,6 @@ function Wrapper(props) {
   }
 
   const _drawBox = () => {
-    const svgPoint = (elem, x, y) => {
-      let p = svg.createSVGPoint();
-      p.x = x;
-      p.y = y;
-      return p.matrixTransform(elem.getScreenCTM().inverse());
-    }
 
     svg.addEventListener('mousedown', (event) => {
       const rectBox = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -98,9 +93,9 @@ function Wrapper(props) {
         rectBox.setAttributeNS(null, 'class', 'box')
         svg.appendChild(rectBox);
 
-        const rects_group = document.querySelectorAll('rect')
+        const rects_group = document.querySelectorAll('.box')
         let id = rects_group.length
-        rectBox.setAttributeNS(null, 'id', id)
+        rectBox.setAttributeNS(null, 'id', 'b'+id)
         
       }
 
