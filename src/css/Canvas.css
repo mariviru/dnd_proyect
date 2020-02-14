@@ -6,7 +6,7 @@
   cursor: crosshair;
 }
 
-rect {
+.zone {
   fill: white;
   stroke: #4A90E2;
   stroke-width: 4;
@@ -17,4 +17,12 @@ rect {
   stroke-width: 0;
   cursor: move;
   z-index: 10;
+}
+
+.box {
+  fill: white;
+  stroke: green;
+  stroke-width: 4;
+  width: 30px;
+  height: 30px;
 }
