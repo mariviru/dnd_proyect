@@ -6,26 +6,27 @@ import Canvas from './Canvas';
 function Wrapper(props) {
   let svg;
 
+  const [svgCanvas, setSvgCanvas] = useState('');
+  const [zones, setZones] = useState([]);
+  const [data, setData] = useState([]);
+
   useEffect(() => {
-    svg = document.querySelector('#svg');
+    //svg = document.querySelector('#svg');
   }, []);
 
   const svgPoint = (elem, x, y) => {
-    let p = svg.createSVGPoint();
+    let p = elem.createSVGPoint();
     p.x = x;
     p.y = y;
     return p.matrixTransform(elem.getScreenCTM().inverse());
   }
 
-  const _drawZone = () => {
+  const _drawZone = (e, svg_canvas) => {
   
-    svg.addEventListener('mousedown', (event) => {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const rect2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const start = svgPoint(svg, event.clientX, event.clientY);
+      const start = svgPoint(svg_canvas, e.clientX, e.clientY);
 
       const drawZoneRect = (e) => {
-        let p = svgPoint(svg, e.clientX, e.clientY);
+        let p = svgPoint(svg_canvas, e.clientX, e.clientY);
         let w = Math.abs(p.x - start.x);
         let h = Math.abs(p.y - start.y);
         if (p.x > start.x) {
@@ -36,36 +37,29 @@ function Wrapper(props) {
           p.y = start.y;
         }
 
-        rect.setAttributeNS(null, 'x', p.x);
-        rect.setAttributeNS(null, 'y', p.y);
-        rect.setAttributeNS(null, 'width', w);
-        rect.setAttributeNS(null, 'height', h);
-        rect.setAttributeNS(null, 'class', 'zone')
-        svg.appendChild(rect);
-
         const rects_group = document.querySelectorAll('.zone')
         let id = rects_group.length
-        rect.setAttributeNS(null, 'id', id)
-        
-        let resizeID = p.x + id;
-        rect2.setAttributeNS(null, 'x', p.x);
-        rect2.setAttributeNS(null, 'y', p.y);
-        rect2.setAttributeNS(null, 'width', 20);
-        rect2.setAttributeNS(null, 'height', 20);
-        rect2.setAttributeNS(null, 'id', resizeID)
-        rect2.setAttributeNS(null, 'class', 'resize')
-        svg.appendChild(rect2);
-        rect2.addEventListener('click', moveRect(id, resizeID))
+
+        setZones([...zones, 
+          {
+            width: w,
+            height: h,
+            x: p.x,
+            y: p.y,
+            class: 'zone',
+            id: id
+          }
+        ])
       }
 
       const endDrawZone = (e) => {
-        svg.removeEventListener('mousemove', drawZoneRect);
-        svg.removeEventListener('mouseup', endDrawZone);
+        svg_canvas.removeEventListener('mousemove', drawZoneRect);
+        svg_canvas.removeEventListener('mouseup', endDrawZone);
       }
 
-      svg.addEventListener('mousemove', drawZoneRect);
-      svg.addEventListener('mouseup', endDrawZone);
-    });
+      svg_canvas.addEventListener('mousemove', drawZoneRect);
+      svg_canvas.addEventListener('mouseup', endDrawZone);
+
   }
 
   const _drawBox = () => {
@@ -75,9 +69,10 @@ function Wrapper(props) {
       const start = svgPoint(svg, event.clientX, event.clientY);
 
       const drawBoxRect = (e) => {
+      
+        let parent_zone = e.currentTarget.firstElementChild;
+        
         let p = svgPoint(svg, e.clientX, e.clientY);
-        let w = Math.abs(p.x - start.x);
-        let h = Math.abs(p.y - start.y);
         if (p.x > start.x) {
           p.x = start.x;
         }
@@ -88,8 +83,6 @@ function Wrapper(props) {
 
         rectBox.setAttributeNS(null, 'x', p.x);
         rectBox.setAttributeNS(null, 'y', p.y);
-        rectBox.setAttributeNS(null, 'width', w);
-        rectBox.setAttributeNS(null, 'height', h);
         rectBox.setAttributeNS(null, 'class', 'box')
         svg.appendChild(rectBox);
 
@@ -174,11 +167,14 @@ function Wrapper(props) {
 
   return (
     <div className="wrapper">
-      <Canvas/>
+      <Canvas
+        onMouseDownSvg={(e, svg_canvas) => _drawZone(e, svg_canvas)}
+        onMouseDownRect={(rect_zone) => _drawBox(rect_zone)}
+        zones={zones}
+      />
       <div className="creation-zone">
         <button
           className="button"
-          onClick={() => _drawZone()}
         >
           Añadir zona
         </button>
