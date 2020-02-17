@@ -7,7 +7,13 @@ function Canvas(props) {
   //const [zones, setZones] = useState(props.zones);
 
   return (
-    <svg id="svg" width="800" height="500" className="wrapper-canvas" onMouseDown={(e) => props.onMouseDownSvg(e, e.target)}>
+    <svg
+      id="svg"
+      width="800"
+      height="500"
+      className="wrapper-canvas"
+      onMouseDown={(e) => props.onMouseDownSvg(e, e.target)}
+    >
       {
         props.zones.length > 0 &&
         props.zones.map((zone, i) => {

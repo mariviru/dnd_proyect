@@ -5,10 +5,8 @@ import Canvas from './Canvas';
 
 function Wrapper(props) {
   let svg;
-
-  const [svgCanvas, setSvgCanvas] = useState('');
   const [zones, setZones] = useState([]);
-  const [data, setData] = useState([]);
+  const [activeDrawZone, setActiveDrawZone] = useState(false);
 
   useEffect(() => {
     //svg = document.querySelector('#svg');
@@ -21,10 +19,14 @@ function Wrapper(props) {
     return p.matrixTransform(elem.getScreenCTM().inverse());
   }
 
-  const _drawZone = (e, svg_canvas) => {
-  
-      const start = svgPoint(svg_canvas, e.clientX, e.clientY);
+  const _triggerZone = () => {
+    setActiveDrawZone(!activeDrawZone)
+  };
 
+  const _drawZone = (e, svg_canvas) => {
+    const start = svgPoint(svg_canvas, e.clientX, e.clientY);
+  
+    if(activeDrawZone === true) {
       const drawZoneRect = (e) => {
         let p = svgPoint(svg_canvas, e.clientX, e.clientY);
         let w = Math.abs(p.x - start.x);
@@ -59,6 +61,9 @@ function Wrapper(props) {
 
       svg_canvas.addEventListener('mousemove', drawZoneRect);
       svg_canvas.addEventListener('mouseup', endDrawZone);
+    }
+
+ 
 
   }
 
@@ -168,19 +173,20 @@ function Wrapper(props) {
   return (
     <div className="wrapper">
       <Canvas
-        onMouseDownSvg={(e, svg_canvas) => _drawZone(e, svg_canvas)}
-        onMouseDownRect={(rect_zone) => _drawBox(rect_zone)}
+        onMouseDownSvg={(e, svg_canvas) =>  _drawZone(e, svg_canvas)}
+        //onMouseDownRect={(rect_zone) => _drawBox(rect_zone)}
         zones={zones}
       />
       <div className="creation-zone">
         <button
           className="button"
+          onClick={() => _triggerZone()}
         >
           Añadir zona
         </button>
         <button
           className="button"
-          onClick={() => _drawBox()}
+          //onClick={() => _drawBox()}
         >
           Añadir cajón
       </button>
