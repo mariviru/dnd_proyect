@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './css/Canvas.css';
 
-//import Zone from './Zone';
-
 function Canvas(props) {
-  //const [zones, setZones] = useState(props.zones);
-
   return (
     <svg
       id="svg"
@@ -19,12 +15,30 @@ function Canvas(props) {
         props.zones.map((zone, i) => {
           return (
             <rect
+              key={i + zone.id}
               className={zone.class}
               x={zone.x}
               y={zone.y}
               width={zone.width}
               height={zone.height}
               id={zone.id}
+              onMouseDown={(e) => props.onMouseDownRect(e, e.currentTarget.parentElement)}
+            />
+          )
+        })
+      }
+
+      {
+        props.boxes.length > 0 &&
+        props.boxes.map((box, j) => {
+          return (
+            <rect
+              key={j}
+              className={box.class}
+              x={box.x}
+              y={box.y}
+              id={box.id}
+              onMouseDown={(e) => e.stopPropagation()}
             />
           )
         })

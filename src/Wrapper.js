@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './css/Wrapper.css';
 
 import Canvas from './Canvas';
 
 function Wrapper(props) {
-  let svg;
   const [zones, setZones] = useState([]);
+  const [boxes, setBoxes] = useState([]);
   const [activeDrawZone, setActiveDrawZone] = useState(false);
-
-  useEffect(() => {
-    //svg = document.querySelector('#svg');
-  }, []);
+  const [activeDrawBox, setActiveDrawBox] = useState(false);
 
   const svgPoint = (elem, x, y) => {
     let p = elem.createSVGPoint();
@@ -20,13 +17,20 @@ function Wrapper(props) {
   }
 
   const _triggerZone = () => {
-    setActiveDrawZone(!activeDrawZone)
+    setActiveDrawZone(true)
+    setActiveDrawBox(false)
+  };
+
+  const _triggerBox = () => {
+    setActiveDrawBox(true)
+    setActiveDrawZone(false)
   };
 
   const _drawZone = (e, svg_canvas) => {
     const start = svgPoint(svg_canvas, e.clientX, e.clientY);
-  
-    if(activeDrawZone === true) {
+
+    if (activeDrawZone === true) {
+      
       const drawZoneRect = (e) => {
         let p = svgPoint(svg_canvas, e.clientX, e.clientY);
         let w = Math.abs(p.x - start.x);
@@ -39,18 +43,18 @@ function Wrapper(props) {
           p.y = start.y;
         }
 
-        const rects_group = document.querySelectorAll('.zone')
-        let id = rects_group.length
+        const zones_group = document.querySelectorAll('.zone')
+        let id = zones_group.length
 
-        setZones([...zones, 
-          {
-            width: w,
-            height: h,
-            x: p.x,
-            y: p.y,
-            class: 'zone',
-            id: id
-          }
+        setZones([...zones,
+        {
+          width: w,
+          height: h,
+          x: p.x,
+          y: p.y,
+          class: 'zone',
+          id: id
+        }
         ])
       }
 
@@ -63,21 +67,19 @@ function Wrapper(props) {
       svg_canvas.addEventListener('mouseup', endDrawZone);
     }
 
- 
+
 
   }
 
-  const _drawBox = () => {
+  const _drawBox = (e, rect_zone, box=false) => {
 
-    svg.addEventListener('mousedown', (event) => {
-      const rectBox = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const start = svgPoint(svg, event.clientX, event.clientY);
+    const start = svgPoint(rect_zone, e.clientX, e.clientY);
 
+    if (activeDrawBox === true) {
+      e.stopPropagation()
       const drawBoxRect = (e) => {
-      
-        let parent_zone = e.currentTarget.firstElementChild;
-        
-        let p = svgPoint(svg, e.clientX, e.clientY);
+
+        let p = svgPoint(rect_zone, e.clientX, e.clientY);
         if (p.x > start.x) {
           p.x = start.x;
         }
@@ -86,29 +88,32 @@ function Wrapper(props) {
           p.y = start.y;
         }
 
-        rectBox.setAttributeNS(null, 'x', p.x);
-        rectBox.setAttributeNS(null, 'y', p.y);
-        rectBox.setAttributeNS(null, 'class', 'box')
-        svg.appendChild(rectBox);
+        const boxes_group = document.querySelectorAll('.box')
+        let id = boxes_group.length
 
-        const rects_group = document.querySelectorAll('.box')
-        let id = rects_group.length
-        rectBox.setAttributeNS(null, 'id', 'b'+id)
-        
+        setBoxes([...boxes,
+        {
+          x: p.x,
+          y: p.y,
+          class: 'box',
+          id: 'b' + id
+        }
+        ])
       }
 
       const endDrawBox = (e) => {
-        svg.removeEventListener('mousemove', drawBoxRect);
-        svg.removeEventListener('mouseup', endDrawBox);
+        rect_zone.removeEventListener('mousemove', drawBoxRect);
+        rect_zone.removeEventListener('mouseup', endDrawBox);
       }
 
-      svg.addEventListener('mousemove', drawBoxRect);
-      svg.addEventListener('mouseup', endDrawBox);
-    });
+      rect_zone.addEventListener('mousemove', drawBoxRect);
+      rect_zone.addEventListener('mouseup', endDrawBox);
+
+    }
   };
 
   const moveRect = (id, resizeID) => {
-    
+
     // let mousedown_points;
 
     // const mousedown = (e) => {
@@ -173,9 +178,10 @@ function Wrapper(props) {
   return (
     <div className="wrapper">
       <Canvas
-        onMouseDownSvg={(e, svg_canvas) =>  _drawZone(e, svg_canvas)}
-        //onMouseDownRect={(rect_zone) => _drawBox(rect_zone)}
+        onMouseDownSvg={(e, svg_canvas) => _drawZone(e, svg_canvas)}
+        onMouseDownRect={(e, rect_zone) => _drawBox(e, rect_zone)}
         zones={zones}
+        boxes={boxes}
       />
       <div className="creation-zone">
         <button
@@ -186,7 +192,7 @@ function Wrapper(props) {
         </button>
         <button
           className="button"
-          //onClick={() => _drawBox()}
+          onClick={() => _triggerBox()}
         >
           Añadir cajón
       </button>
